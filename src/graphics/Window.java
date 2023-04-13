@@ -163,7 +163,7 @@ public class Window extends JFrame {
 		this.setVisible(true);
 		env.update();
 		
-		Util.println("Window launched");
+		Util.println("Window launched\n");
 	} 
 	
 	/**
@@ -240,7 +240,7 @@ public class Window extends JFrame {
 		}
 		animThread = new Thread(loop);
 		animThread.start();
-		Util.println("Thread Started");
+		Util.println("Thread Started\n");
 	} 
 	
 	/**

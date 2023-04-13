@@ -54,6 +54,7 @@ public class AutoSim {
 	
 	//DriveLoop instance to be controlled (change to getInstance()?)
 	public static DriveLoop driveLoop;
+	public static Robot r;
 	
 	//CommandGroup to be run
 	private static CommandGroup cg;
@@ -70,14 +71,15 @@ public class AutoSim {
 	public static void main(String[] args) {
 		//initialize the program
 		initializeScreen();
+		w = new Window("AutoSim", true); //true for debug, false for not
+		
 		initializeSimulation(); 
 		
 		//create the window 
-		w = new Window("AutoSim", true); //true for debug, false for not
 		addWidgets(); //add widgets to the widget hub
 		
 		//add the command group and plot data
-		w.addCommandGroup(cg);
+//		w.addCommandGroup(cg);
 		//new Thread(AutoSim::plotData).run(); //run in parallel to speed things up
 		
 		//add poses to play (not from command)
@@ -122,7 +124,7 @@ public class AutoSim {
 		
 		//create robot
 		Gearbox gb = new Gearbox(Gearbox.ratioFromTopSpeed(Util.NEO, 4, 12), new Motor(Util.NEO), 2); //12ft/s 4 NEO
-		Robot r = new Robot(4, 120, 30, 30, gb); //120lb 4" wheel dia 30"x30" chassis
+		r = new Robot(4, 120, 30, 30, gb); //120lb 4" wheel dia 30"x30" chassis
 //		r.setXY(new Point(curve[0]));
 //		r.setHeadingDegrees(new BezierPath(curve).calcHeading(0));
 		r.setXY(new Point(250,50));
@@ -188,6 +190,22 @@ public class AutoSim {
 		BezierPathCreatorWidget bezWidg = new BezierPathCreatorWidget(new BezierPathCreator(w.getHubWidth(), w.getHubHeight() * 1/2));
 		bezWidg.setControlPoints(curve);
 		w.addWidget(bezWidg);
+		
+		// Update the curve the command will run to the one from the GUI
+		w.addStartButtonActions(() -> {
+			double robotWidth = 30;
+			PursuitPath path = new PursuitPath(bezWidg.getControlPoints(), robotWidth, 12, 200, 200, 24);
+			Util.println("Number of PursuitPath Points: ", path.getPoints().length);
+			Point[] testPoints = path.getPoints();
+			for (int i = 0; i < testPoints.length; i++) {
+				testPoints[i] = Point.scale(testPoints[i], 1.0);
+			}
+			
+			cg = new CommandList(new PurePursuit(driveLoop, testPoints));
+			r.setXY(testPoints[0]);
+			r.setHeading(path.getInitialHeading());
+			w.addCommandGroup(cg);
+		});
 	}
 
 	/**

@@ -71,6 +71,10 @@ public class BezierPathCreatorWidget extends Widget {
 		bpc.setCircles(GraphicBezierPath.circlesFromFile(filename));
 	} 
 	
+	public Point[] getControlPoints() {
+		return bpc.getCurve().getControlPoints();
+	}
+	
 	/**
 	 * Update the widget given update values
 	 * @param values Values given from the update

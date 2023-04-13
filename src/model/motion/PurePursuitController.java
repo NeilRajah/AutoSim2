@@ -67,6 +67,7 @@ public class PurePursuitController {
 	public void setWaypoints(Point[] goals) {
 		this.goals = goals;
 		this.goal = goals[0]; //set the goal to be the first point
+		this.goalIndex = 0;
 	} //end setWaypoints
 		
 	/**
@@ -93,7 +94,6 @@ public class PurePursuitController {
 	public void setArriveConstants(double goal, double end) {
 		this.goalDist = goal;
 		this.endDist = end;
-		this.goalIndex = 0; //start at the first point
 	} //end setArriveConstants
 	
 	/**
@@ -330,4 +330,9 @@ public class PurePursuitController {
 		
 		return goals[record];
 	} //end closestPoint
+	
+	public void reset() {
+		this.arrived = false;
+		this.goalIndex = 0;
+	}
 } //end class

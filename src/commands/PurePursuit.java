@@ -12,12 +12,14 @@ import model.DriveLoop;
 import model.Point;
 import model.DriveLoop.STATE;
 import model.motion.PurePursuitController;
+import util.Util;
 
 public class PurePursuit extends Command {
 	//Attributes
 	private DriveLoop loop; //drivetrain state machine to control
 	private PurePursuitController ppc; //Pure pursuit controller to follow
 	private Point[] goals;
+	private int numLoops;
 	
 	/**
 	 * Create a PurePursuit command
@@ -30,6 +32,7 @@ public class PurePursuit extends Command {
 		this.goals = goals;
 		this.robot = loop.getRobot();
 		this.ppc = loop.getPurePursuitController();
+		this.numLoops = 0;
 	} //end constructor
 
 	/**
@@ -38,6 +41,7 @@ public class PurePursuit extends Command {
 	protected void initialize() {
 		loop.setState(STATE.PURE_PURSUIT);
 		ppc.setWaypoints(goals);
+		ppc.reset();
 		
 		//graphics
 		Environment.getInstance().setWaypoints(goals);
@@ -54,6 +58,7 @@ public class PurePursuit extends Command {
 		
 		//graphics
 		this.robot.setGoalPoint(ppc.getGoal());
+		numLoops++;
 	} //end execute
 
 	/**
@@ -63,7 +68,10 @@ public class PurePursuit extends Command {
 		return ppc.isArrived();
 	} //end isFinished
 
-	protected void end() {}
+	protected void end() {
+		Util.println("Finished after %d loops".formatted(numLoops));
+		
+	}
 
 	protected void timedOut() {}
 } //end class

@@ -292,7 +292,6 @@ public class BezierPathCreator extends JPanel {
 			if (textBox.getName().contains("x")) {
 //				textBox.setText("22");
 				textBox.setText(Double.toString(circles[loops/2].getX()));
-				Util.println(String.format("%.1f", circles[loops/2].getX()));
 				
 			} else if (textBox.getName().contains("y")) {
 				textBox.setText(Double.toString(circles[loops/2].getY()));
