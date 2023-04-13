@@ -411,7 +411,7 @@ public class Util {
 			f = Font.createFont(Font.TRUETYPE_FONT, is);
 			f = f.deriveFont(FONT_SIZE);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			f = new Font(Font.SANS_SERIF, Font.PLAIN, (int) FONT_SIZE);
 		}
 		
@@ -503,7 +503,7 @@ public class Util {
 	 */
 	public static boolean fuzzyEquals(double a, double b, double eps) {
 		return Math.abs(a-b) <= eps;
-	} //end fuzzyEquals
+	} 
 	
 	/**
 	 * Create an integer array with values from zero to n-1 inclusive

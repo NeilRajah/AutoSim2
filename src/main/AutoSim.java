@@ -16,6 +16,7 @@ import org.knowm.xchart.XYChart;
 import commands.CommandGroup;
 import commands.CommandList;
 import commands.DriveDistance;
+import commands.PurePursuit;
 import graphics.Painter;
 import graphics.Window;
 import graphics.widgets.BezierPathCreator;
@@ -92,7 +93,7 @@ public class AutoSim {
 	 */
 	private static void initializeScreen() {
 		int screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length;
-		//screens = 0;
+		screens = 0;
 		//set the scaling constants
 		if (screens > 1) {
 			//monitor is 1080p
@@ -142,9 +143,9 @@ public class AutoSim {
 		//cg = new CommandList(new DriveClosedLoopLinearProfile(driveLoop, profile, 1));
 		
 		PurePursuitController ppc = new PurePursuitController();
-		ppc.setSeekConstants(0.25, 22, 12, false);
+		ppc.setSeekConstants(0.25, 50, 12, false);
 		ppc.setArriveConstants(30, 3);
-		ppc.setPurePursuitConstants(18);
+		ppc.setPurePursuitConstants(30);
 		driveLoop.setPurePursuitController(ppc);
 		
 		/*Point[] testPoints = new Point[3];
@@ -158,8 +159,8 @@ public class AutoSim {
 			testPoints[i] = Point.scale(testPoints[i], 1.0);
 		}
 		
-//		cg = new CommandList(new PurePursuit(driveLoop, testPoints));
-		cg = new CommandList(new DriveDistance(driveLoop, 100, 1, r.getMaxLinSpeed()));
+		cg = new CommandList(new PurePursuit(driveLoop, testPoints));
+//		cg = new CommandList(new DriveDistance(driveLoop, 100, 1, r.getMaxLinSpeed()));
 		r.setXY(testPoints[0]);
 		r.setHeading(path.getInitialHeading());
 	} 

@@ -284,7 +284,7 @@ public class PurePursuitController {
 			intersects.addAll(FieldPositioning.lineCircleIntersect(goals[i], goals[i+1], robotPose.getPoint(), lookahead));
 		} //loop
 		
-		//if no intersects, choose the closest point the robot
+		//if no intersects, choose the closest point to the robot
 		//otherwise, choose the last intersect added
 //		goal = intersects.size() == 0 ? closestPoint() : intersects.get(intersects.size()-1);
 		

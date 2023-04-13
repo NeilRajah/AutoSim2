@@ -10,7 +10,7 @@ package graphics.widgets;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +39,7 @@ public class BezierPathCreator extends JPanel {
 	private int width; //width in pixels
 	private int height; //height in pixels
 	private GraphicBezierPath curve; //curve being manipulated
-	private HashMap<String, JTextField> textBoxes; //text boxes for control points
+	private JTextField[] textBoxes; //text boxes for control points
 	private BoxButton[] buttons; //buttons for control points
 	
 	/**
@@ -53,7 +53,7 @@ public class BezierPathCreator extends JPanel {
 		//set attributes
 		this.width = width;
 		this.height = height;
-		this.textBoxes = new HashMap<String, JTextField>();
+		this.textBoxes = new JTextField[12];
 		this.buttons = new BoxButton[6];
 		this.curve = new GraphicBezierPath();
 		
@@ -105,7 +105,8 @@ public class BezierPathCreator extends JPanel {
 			//create textbox and add to HashMap
 			String key = (i % 2 == 0 ? "x" : "y") + Integer.toString(i/2 % 6); //x0, y0, x1, ...
 			JTextField textBox = JComponentUtil.textField(key, this.width / 6, this.height / 10, AutoSim.PPI * 4);
-			textBoxes.put(key, textBox); //add to map
+			textBox.setName(key);
+			textBoxes[i] = textBox;
 			
 			//add textbox controller
 			BezierTextController boxController = new BezierTextController(textBox, this);
@@ -197,7 +198,7 @@ public class BezierPathCreator extends JPanel {
 	} 
 	
 	/**
-	 * Set a coordinate value in the curvecurve
+	 * Set a coordinate value in the curve
 	 * @param key Key designating the value to be changed
 	 * @param value Value to update
 	 */
@@ -215,27 +216,27 @@ public class BezierPathCreator extends JPanel {
 	 * Update the control points of the curve
 	 */
 	public void updateControlPoints() {
-		Iterator<Entry<String, JTextField>> it = textBoxes.entrySet().iterator(); //for looping through map
 		int loops = 0; //number of loops
 		double x = 0; //x value of point
 		double y = 0; //y value of point
 		Circle[] circles = new Circle[6]; //new control point array
 		
 		//iterates in y,x,y,x,y ... pattern
-		while (it.hasNext()) {
+		for (int i = 0; i < textBoxes.length; i++) {
 			loops++;
+			JTextField textBox = textBoxes[i];
 			
-			//get entry
-			Map.Entry<String, JTextField> entry = (Entry<String, JTextField>) it.next();	
 			
 			//catch formatting errors
 			try {
 				//set x and y values
-				if (entry.getKey().contains("x")) {
-					x = Double.parseDouble(entry.getValue().getText());
+				String name = textBox.getName();
+				
+				if (name.contains("x")) {
+					x = Double.parseDouble(textBox.getText());
 					
-				} else if (entry.getKey().contains("y")) {
-					y = Double.parseDouble(entry.getValue().getText());
+				} else if (name.contains("y")) {
+					y = Double.parseDouble(textBox.getText());
 				} 
 				
 			} catch (NumberFormatException e) {
@@ -264,12 +265,8 @@ public class BezierPathCreator extends JPanel {
 	 * @return If all the boxes are non-empty
 	 */
 	private boolean allBoxesValid() {
-		Iterator<Entry<String, JTextField>> it = textBoxes.entrySet().iterator();
-		
-		while (it.hasNext()) {
-			Map.Entry<String, JTextField> entry = (Entry<String, JTextField>) it.next();
-			
-			if (entry.getValue().getText().equals("")) {
+		for (int i = 0; i < textBoxes.length; i++) {
+			if (textBoxes[i].getText().equals("")) {
 				return false;
 			}
 		}
@@ -282,20 +279,23 @@ public class BezierPathCreator extends JPanel {
 	 * @param circles Circles for the text boxes to show
 	 */
 	public void setCircles(Circle[] circles) {
-		Iterator<Entry<String, JTextField>> it = textBoxes.entrySet().iterator(); //for looping through map
 		int loops = 0; //number of elements visited
 		
 		//iterates in y,x,y,x,y ... pattern
-		while (it.hasNext()) {
-			//get entry
-			Map.Entry<String, JTextField> entry = (Entry<String, JTextField>) it.next();	
+		for (int i = 0; i < textBoxes.length; i++) { 
+			JTextField textBox = textBoxes[i];
+//			textBox.setText("22.0");
+//			textBoxes[i].setText("22.0");
+//			Util.println(String.format("%s %s", textBoxes[i].getName(), textBoxes[i].getText()));
 			
 			//set x and y values of control points to the textboxes
-			if (entry.getKey().contains("x")) {
-				entry.getValue().setText(Double.toString(circles[loops/2].getX()));
+			if (textBox.getName().contains("x")) {
+//				textBox.setText("22");
+				textBox.setText(Double.toString(circles[loops/2].getX()));
+				Util.println(String.format("%.1f", circles[loops/2].getX()));
 				
-			} else if (entry.getKey().contains("y")) {
-				entry.getValue().setText(Double.toString(circles[loops/2].getY()));
+			} else if (textBox.getName().contains("y")) {
+				textBox.setText(Double.toString(circles[loops/2].getY()));
 			}
 
 			loops++;
@@ -348,14 +348,16 @@ public class BezierPathCreator extends JPanel {
 	 */
 	public void moveCircle(double dx, double dy) {
 		int l = getLockedButtonIndex();
+		int xIdx = 2*l;
+		int yIdx = xIdx + 1;
 		
 		//move the circle and update the textboxes
 		if (l != -1 && allBoxesValid()) {
 			//get the new (x,y) values by adding the change to the textbox values
-			JTextField xBox = textBoxes.get("x".concat(Integer.toString(l)));
+			JTextField xBox = textBoxes[xIdx];
 			double xVal = Double.parseDouble(xBox.getText()) + dx;
 			
-			JTextField yBox = textBoxes.get("y".concat(Integer.toString(l)));
+			JTextField yBox = textBoxes[yIdx];
 			double yVal = Double.parseDouble(yBox.getText()) + dy;
 			
 			//set the new (x,y) values to the corresponding textboxes and update the circles
@@ -382,12 +384,15 @@ public class BezierPathCreator extends JPanel {
 	 * @param yVal New y value
 	 */
 	private void setTextXY(int i, double xVal, double yVal) {
+		int xIdx = 2*i;
+		int yIdx = xIdx + 1;
+		
 		if (allBoxesValid()) {
 			//set the text of the textbox
-			JTextField xBox = textBoxes.get("x".concat(Integer.toString(i)));
+			JTextField xBox = textBoxes[xIdx];
 			xBox.setText(String.format("%.1f", xVal));
 			
-			JTextField yBox = textBoxes.get("y".concat(Integer.toString(i)));
+			JTextField yBox = textBoxes[yIdx];
 			yBox.setText(String.format("%.1f", yVal));
 		} 
 	}

@@ -85,7 +85,7 @@ public class FieldPositioning {
 		double dy = Math.abs(target.getY() - current.getY());
 		
 		return dx < range && dy < range;
-	} //end isWithinBounds
+	} 
 	
 	/**
 	 * Flip the x and y values of curve points
