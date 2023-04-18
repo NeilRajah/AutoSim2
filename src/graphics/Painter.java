@@ -16,6 +16,7 @@ import graphics.widgets.Circle;
 import main.AutoSim;
 import model.Point;
 import model.Pose;
+import util.Util;
 
 public class Painter {
 	//Painting constants
@@ -61,7 +62,7 @@ public class Painter {
 		
 		//draw back-end indicator (straight box so only round edges at front)
 		g2.fillRoundRect(-ROBOT_LENGTH/2, -ROBOT_WIDTH/2, CORNER_RAD, ROBOT_WIDTH, CORNER_RAD/4, CORNER_RAD/4);
-	} //end drawPose
+	} 
 	
 	/**
 	 * Draw the grid to the environment

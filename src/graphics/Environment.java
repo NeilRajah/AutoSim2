@@ -405,9 +405,10 @@ public class Environment extends JComponent {
 	 */
 	private void drawCurrentPose(Graphics2D g2) {
 		AffineTransform oldTransform = g2.getTransform();
-		if (poses != null && !poses.isEmpty()) { //if the pose is not null or empty
+		// Draw a pose, if one exists
+		if (poses != null && !poses.isEmpty()) { 
 			Painter.drawPose(g2, poses.get(poseIndex));
-		} //if
+		} 
 		g2.setTransform(oldTransform);
 	} 
 	

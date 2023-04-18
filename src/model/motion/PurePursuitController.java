@@ -20,7 +20,6 @@ import util.Util;
 public class PurePursuitController {
 	//Attributes
 	//Seek
-	private double accTime; //time to accelerate linear output to maxVel
 	private double turnConst; //for angular output calculations
 	private double maxSpeed; //maximum linear output in ft/s
 
@@ -42,9 +41,7 @@ public class PurePursuitController {
 	private Pose robotPose; //pose of the robot
 	
 	//Rate Limiter
-	private double prevTime; //for rate limiter
 	private double lastSpeed; //last speed value
-	private double robotSpeed; //speed from robot
 	private double maxSpeedStep; //maximum amount the speed can increase
 	ArrayList<Double> output = new ArrayList<Double>();
 		
@@ -58,7 +55,7 @@ public class PurePursuitController {
 		this.speed = 0;
 		this.turn = 0;
 		this.turnConst = 0;
-	} //end constructor
+	} 
 
 	/**
 	 * Set the path for the controller to follow
@@ -66,9 +63,10 @@ public class PurePursuitController {
 	 */
 	public void setWaypoints(Point[] goals) {
 		this.goals = goals;
+		
 		this.goal = goals[0]; //set the goal to be the first point
 		this.goalIndex = 0;
-	} //end setWaypoints
+	} 
 		
 	/**
 	 * Set the constants for the seek mode
@@ -78,13 +76,13 @@ public class PurePursuitController {
 	 * @param reverse Whether to drive through the points in reverse
 	 */
 	public void setSeekConstants(double accTime, double turnConst, double maxSpeed, boolean reverse) {
-		this.accTime = accTime;
 		this.turnConst = turnConst;
 		this.maxSpeed = maxSpeed;
 		this.reverse = reverse;
+		
 		this.lastSpeed = 0; //start at zero lastSpeed
 		this.maxSpeedStep = Util.UPDATE_PERIOD * maxSpeed / accTime;
-	} //end setSeekConstants
+	}
 	
 	/**
 	 * Set the constants for the arrive mode
@@ -94,7 +92,7 @@ public class PurePursuitController {
 	public void setArriveConstants(double goal, double end) {
 		this.goalDist = goal;
 		this.endDist = end;
-	} //end setArriveConstants
+	}
 	
 	/**
 	 * Set the constants for the pure pursuit mode
@@ -102,7 +100,7 @@ public class PurePursuitController {
 	 */
 	public void setPurePursuitConstants(double lookahead) {
 		this.lookahead = lookahead;
-	} //end setPurePursuitConstants
+	}
 	
 	/**
 	 * Get the linear output
@@ -110,7 +108,7 @@ public class PurePursuitController {
 	 */
 	public double getLinOut() {
 		return speed;
-	} //end getLinOut
+	}
 	
 	/**
 	 * Get the angular output
@@ -118,7 +116,7 @@ public class PurePursuitController {
 	 */
 	public double getAngOut() {
 		return turn;
-	} //end getAngOut
+	} 
 	
 	/**
 	 * Return whether or not the controller has arrived at the goal
@@ -126,15 +124,15 @@ public class PurePursuitController {
 	 */
 	public boolean isArrived() {
 		return arrived;
-	} //end isArrived
+	} 
 	
 	/**
 	 * Get the lookahead distance for the controller
-	 * @return
+	 * @return The distance the controller is looking ahead in inches
 	 */
 	public double getLookahead() {
 		return lookahead;
-	} //end getLookahead
+	}
 	
 	/**
 	 * Get the goal point
@@ -142,7 +140,7 @@ public class PurePursuitController {
 	 */
 	public Point getGoal() {
 		return goal;
-	} //end getGoal
+	}
 	
 	/**
 	 * Calculate the outputs for the controller
@@ -152,20 +150,17 @@ public class PurePursuitController {
 	public void calcOutputs(Pose robotPose, double robotSpeed) {
 		//set the pose and current speed
 		this.robotPose = robotPose;
-		this.robotSpeed = robotSpeed;
 		
 		//calculate the arrived state
 		if (FieldPositioning.dist(robotPose.getPoint(), goal) <= endDist) {
+			goal = goals[goalIndex];
 			goalIndex++;
-			goal = goals[Math.min(goalIndex, goals.length-1)];
-		} //if
-		
-		arrived = goalIndex == goals.length;
+		} 
+		arrived = goalIndex == goals.length-1;
 		
 		//stop if the controller has arrived
 		if (arrived) {
 			//don't output if arrived
-			this.robotSpeed = 0;
 			this.turn = 0;
 			
 			/*
@@ -187,12 +182,10 @@ public class PurePursuitController {
 			 * To-Do
 			 * Pursue multiple points
 			 * 
-			 */
-//			arrive();
-//			seek();			
+			 */	
 			purePursuit();
-		} //if
-	} //end calcOutputs
+		} 
+	}
 	
 	/**
 	 * Seek the goal point
@@ -210,13 +203,15 @@ public class PurePursuitController {
 		
 		//choose the smaller of the two angles
 		double twist = Util.minMag(relTurn, relTurn2);
-		if (reverse)
+		if (reverse) {
 			twist = FieldPositioning.angleWrap(twist + Math.PI); //flip angle if reverse
+		}
 		
 		//scale the speed based on the size of twist
 		speed *= angleScale(twist); //slow down more the larger the relative angle is
-		if (reverse)
+		if (reverse) {
 			speed = -Math.abs(speed); //flip speed if reverse
+		}
 		//rate limit speed
 		if (Math.abs(speed) - Math.abs(lastSpeed) > 0) {
 			speed = Math.min(speed, lastSpeed + maxSpeedStep);
@@ -228,16 +223,16 @@ public class PurePursuitController {
 		
 		//set the last speed
 		output.add(speed); //dbg
-	} //end seek
+	}
 	
 	/**
 	 * Get the scale factor based on the angle
 	 * @param twist Relative angle in radians
-	 * @return Scale factor from 0 to 1
+	 * @return Scale factor from 0 to 1 (0 if angle magnitude > 90 degrees, 1 if at zero)
 	 */
 	private double angleScale(double twist) {
 		return -(Math.min(Math.PI/2, Math.abs(twist)) / (Math.PI/2)) + 1;
-	} //end angleScale
+	}
 	
 	/**
 	 * Arrive at the goal
@@ -253,8 +248,8 @@ public class PurePursuitController {
 		//set the goal to max vel if not arriving
 		} else {
 			speed = maxSpeed;
-		} //if
-	} //end arrive
+		} 
+	}
 	
 	/**
 	 * Employ the Pure Pursuit tracking algorithm to follow the path
@@ -279,36 +274,32 @@ public class PurePursuitController {
 		 *   - find points in bounds of lookahead + some distance, lookahead times a constant
 		 *   - then evaluate intersects
 		 */
+		// Add all points along the path the robot is intersecting
 		ArrayList<Point> intersects = new ArrayList<Point>();
 		for (int i = 0; i < goals.length-1; i++) {
 			intersects.addAll(FieldPositioning.lineCircleIntersect(goals[i], goals[i+1], robotPose.getPoint(), lookahead));
-		} //loop
+		} 
 		
 		//if no intersects, choose the closest point to the robot
 		//otherwise, choose the last intersect added
 //		goal = intersects.size() == 0 ? closestPoint() : intersects.get(intersects.size()-1);
 		
-		/*
-		 * if the robot is close the end
-		 * 	goal = end
-		 * else
-		 * 	if no intersects
-		 * 	 goal = closest
-		 * 	else
-		 * 	 goal = last intersect
-		 */
-		
 		if (FieldPositioning.dist(robotPose.getPoint(), goals[goals.length-1]) < goalDist) {
+			// Robot is close to the end -> seek the final point
 			goal = goals[goals.length-1];
+			
 		} else if (intersects.isEmpty()) {
+			// Robot is off the path -> seek the closest point
 			goal = closestPoint();
+			
 		} else {
+			// Robot is on the path -> seek the furthest point along the path it sees
 			goal = intersects.get(intersects.size()-1);
 		}
 		
 		arrive();
 		seek();
-	} //end purePursuit
+	} 
 	
 	/**
 	 * Get the point on the path the robot is closest to
@@ -325,14 +316,17 @@ public class PurePursuitController {
 			if (dist < minDist) {
 				minDist = dist;
 				record = i;
-			} //if
-		} //loop
+			} 
+		} 
 		
 		return goals[record];
-	} //end closestPoint
+	} 
 	
+	/**
+	 * Reset the controller 
+	 */
 	public void reset() {
 		this.arrived = false;
 		this.goalIndex = 0;
 	}
-} //end class
+}

@@ -141,6 +141,10 @@ public class Window extends JFrame {
 		mainPanel.add(start, JComponentUtil.createGBC(1, 1));
 	}
 	
+	/**
+	 * Add actions to be run when the start button is pressed
+	 * @param r Actions to be run when the start button is pressed
+	 */
 	public void addStartButtonActions(Runnable ... r) {
 		startCtrl.addRunnables(r);
 	}

@@ -79,7 +79,7 @@ public class AutoSim {
 		addWidgets(); //add widgets to the widget hub
 		
 		//add the command group and plot data
-//		w.addCommandGroup(cg);
+		w.addCommandGroup(cg);
 		//new Thread(AutoSim::plotData).run(); //run in parallel to speed things up
 		
 		//add poses to play (not from command)
@@ -113,7 +113,7 @@ public class AutoSim {
 //		SCREEN_WIDTH = 3840; SCREEN_HEIGHT = 2160; TOP_SCREEN = false;
 		
 		//5 pixels per inch on a 3840x2160 screen
-		PPI = (int) Math.floor(5.0 * (SCREEN_WIDTH/3840.0));
+		PPI = (int) Math.floor(8.0 * (SCREEN_WIDTH/3840.0));
 	} 
 	
 	/**
@@ -123,8 +123,8 @@ public class AutoSim {
 		curve = FieldPoints.niceLongCurve;
 		
 		//create robot
-		Gearbox gb = new Gearbox(Gearbox.ratioFromTopSpeed(Util.NEO, 4, 12), new Motor(Util.NEO), 2); //12ft/s 4 NEO
-		r = new Robot(4, 120, 30, 30, gb); //120lb 4" wheel dia 30"x30" chassis
+		Gearbox gb = new Gearbox(Gearbox.ratioFromTopSpeed(Util.FALCON, 4, 14), new Motor(Util.FALCON), 2); //12ft/s 4 NEO
+		r = new Robot(4, 153, 30, 30, gb); //120lb 4" wheel dia 30"x30" chassis
 //		r.setXY(new Point(curve[0]));
 //		r.setHeadingDegrees(new BezierPath(curve).calcHeading(0));
 		r.setXY(new Point(250,50));
@@ -186,7 +186,7 @@ public class AutoSim {
 		angSpd.setColors(Color.ORANGE, Color.BLUE);
 		w.addWidget(angSpd);
 		
-		//bezier path creator widget
+		//Bezier path creator widget
 		BezierPathCreatorWidget bezWidg = new BezierPathCreatorWidget(new BezierPathCreator(w.getHubWidth(), w.getHubHeight() * 1/2));
 		bezWidg.setControlPoints(curve);
 		w.addWidget(bezWidg);
@@ -201,7 +201,10 @@ public class AutoSim {
 				testPoints[i] = Point.scale(testPoints[i], 1.0);
 			}
 			
-			cg = new CommandList(new PurePursuit(driveLoop, testPoints));
+			cg = new CommandList(new DriveDistance(driveLoop, 50, 10, r.getMaxLinSpeed()*0.9), 
+													new DriveDistance(driveLoop, 30, 2, r.getMaxLinSpeed()*0.3),
+													new DriveDistance(driveLoop, -100, 12, r.getMaxLinSpeed()*0.9), 
+													new PurePursuit(driveLoop, testPoints));
 			r.setXY(testPoints[0]);
 			r.setHeading(path.getInitialHeading());
 			w.addCommandGroup(cg);
