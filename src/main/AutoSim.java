@@ -108,12 +108,11 @@ public class AutoSim {
 			SCREEN_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().height);
 			TOP_SCREEN = false;
 			//always chooses primary monitor's resolution
-		} //if
+		} 
 		
 //		SCREEN_WIDTH = 3840; SCREEN_HEIGHT = 2160; TOP_SCREEN = false;
 		
-		//5 pixels per inch on a 3840x2160 screen
-		PPI = (int) Math.floor(8.0 * (SCREEN_WIDTH/3840.0));
+		PPI = (int) Math.floor(5.0 * (SCREEN_WIDTH/3840.0));
 	} 
 	
 	/**

@@ -101,7 +101,7 @@ public class Environment extends JComponent {
 			field = field.getScaledInstance(width, height, BufferedImage.SCALE_FAST); 
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
-		} //try-catch
+		} 
 		
 		//set focus traversable
 		this.setFocusable(true);
